@@ -35,6 +35,38 @@ nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
 plt.title("Transport Network")
 plt.show()
 
+
+# Алгоритм DFS
+def dfs_paths(graph, start, goal):
+    stack = [(start, [start])]
+    while stack:
+        (vertex, path) = stack.pop()
+        for next in set(graph.neighbors(vertex)) - set(path):
+            if next == goal:
+                yield path + [next]
+            else:
+                stack.append((next, path + [next]))
+
+
+# Алгоритм BFS
+def bfs_paths(graph, start, goal):
+    queue = [(start, [start])]
+    while queue:
+        (vertex, path) = queue.pop(0)
+        for next in set(graph.neighbors(vertex)) - set(path):
+            if next == goal:
+                yield path + [next]
+            else:
+                queue.append((next, path + [next]))
+
+
+# Пошук шляхів від A до E
+dfs_path = list(dfs_paths(G, "A", "E"))
+bfs_path = list(bfs_paths(G, "A", "E"))
+
+print("DFS Path:", dfs_path)
+print("BFS Path:", bfs_path)
+
 # Аналіз основних характеристик
 print(f"Number of nodes: {G.number_of_nodes()}")
 print(f"Number of edges: {G.number_of_edges()}")
