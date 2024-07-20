@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import heapq
 
 # Створення графа
 G = nx.Graph()
@@ -67,7 +68,65 @@ bfs_path = list(bfs_paths(G, "A", "E"))
 print("DFS Path:", dfs_path)
 print("BFS Path:", bfs_path)
 
+
+# Алгоритм Дейкстри для знаходження найкоротших шляхів між усіма вершинами графа
+def dijkstra(graph, start):
+    distances = {node: float('inf') for node in graph.nodes}
+    distances[start] = 0
+    priority_queue = [(0, start)]
+    shortest_path_tree = {start: None}
+
+    while priority_queue:
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        if current_distance > distances[current_node]:
+            continue
+
+        for neighbor, data in graph[current_node].items():
+            weight = data['weight']
+            distance = current_distance + weight
+
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                shortest_path_tree[neighbor] = current_node
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+    return distances, shortest_path_tree
+
+
+# Відновлення шляху
+def reconstruct_path(shortest_path_tree, start, goal):
+    path = []
+    current_node = goal
+    while current_node is not None:
+        path.append(current_node)
+        current_node = shortest_path_tree[current_node]
+    path.reverse()
+    return path
+
+
+# Знаходження найкоротших шляхів між усіма вершинами
+shortest_paths = {}
+shortest_path_lengths = {}
+for node in G.nodes:
+    distances, tree = dijkstra(G, node)
+    shortest_paths[node] = {target: reconstruct_path(tree, node, target) for target in G.nodes}
+    shortest_path_lengths[node] = distances
+
+# Виведення найкоротших шляхів
+print("\n")
+for start_node, paths in shortest_paths.items():
+    for end_node, path in paths.items():
+        print(f"Shortest path from {start_node} to {end_node}: {path}")
+
+# Виведення відстаней найкоротших шляхів між усіма вершинами
+print("\n")
+for start_node, lengths in shortest_path_lengths.items():
+    for end_node, length in lengths.items():
+        print(f"Shortest path length from {start_node} to {end_node}: {length}")
+
 # Аналіз основних характеристик
+print("\n")
 print(f"Number of nodes: {G.number_of_nodes()}")
 print(f"Number of edges: {G.number_of_edges()}")
 print("Degree of each node:")
